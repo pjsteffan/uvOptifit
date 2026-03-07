@@ -311,5 +311,5 @@ if __name__ == "__main__":
     equal_var_init(sup)
 
     # train the model (hint: here are some helpful Trainer arguments for rapid idea iteration)
-    trainer = L.Trainer(max_epochs=200,log_every_n_steps=15, accelerator="gpu", devices=1)
+    trainer = L.Trainer(max_epochs=200,log_every_n_steps=15, default_root_dir='/app/Data/uvOptifit/Contrastive', accelerator="gpu", devices=1)
     trainer.fit(model=sup, train_dataloaders=loader)
