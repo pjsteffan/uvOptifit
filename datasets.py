@@ -11,7 +11,7 @@ from PyEMD import EMD
 
 
 class WRsmallepoch(Dataset):
-    def __init__(self, data_file: str, annotation_file: str, epoch_size: float, single_channel_flag: bool =True, psd_flag: bool = True, EMD_flag: bool = False, epoch_id_restriction: int = None, sample_rate: int = 5000):
+    def __init__(self, data_file: str, annotation_file: str, epoch_size: float, single_channel_flag: bool =True, psd_flag: bool = True, EMD_flag: bool = False,BP_flag = False,epoch_id_restriction: int = None, sample_rate: int = 5000):
         self.data_file = data_file
         self.annotation_file = annotation_file
         self.annotations = self.load_annotations(epoch_id_restriction)
@@ -23,6 +23,7 @@ class WRsmallepoch(Dataset):
         self.single_channel_flag = single_channel_flag
         self.psd_flag = psd_flag
         self.EMD_flag = EMD_flag
+        self.BP_flag = BP_flag
 
     def compute_frequency_vector(self):
         # Example vector
@@ -82,13 +83,29 @@ class WRsmallepoch(Dataset):
             ch1_data = self.filter_data(ch1_data, lowcut=5, highcut=30, fs=100.0, order=5)
             ch2_data = self.filter_data(ch2_data, lowcut=5, highcut=30, fs=100.0, order=5)
 
-            if self.psd_flag:
-                _, ch1_data = self.power_spectrum(ch1_data, fs=100.0)
-                _, ch2_data = self.power_spectrum(ch2_data, fs=100.0)
 
-            
-            epoch_data = np.stack([ch1_data, ch2_data], axis=0)  # Shape: (2, num_samples)
-            epoch_data = epoch_data.transpose(1, 0)  # Shape: (num_samples, 2)
+            if not self.BP_flag:
+
+                if self.psd_flag:
+                    _, ch1_data = self.power_spectrum(ch1_data, fs=100.0)
+                    _, ch2_data = self.power_spectrum(ch2_data, fs=100.0)
+
+                
+                epoch_data = np.stack([ch1_data, ch2_data], axis=0)  # Shape: (2, num_samples)
+                epoch_data = epoch_data.transpose(1, 0)  # Shape: (num_samples, 2)
+
+            else: 
+                ch1_data_low = self.filter_data(ch1_data, lowcut=5, highcut=9, fs=100.0, order=8)
+                ch2_data_low = self.filter_data(ch2_data, lowcut=5, highcut=9, fs=100.0, order=8)
+
+                ch1_data_mid = self.filter_data(ch1_data, lowcut=12, highcut=16, fs=100.0, order=8)
+                ch2_data_mid = self.filter_data(ch2_data, lowcut=12, highcut=16, fs=100.0, order=8)
+
+                ch1_data_high = self.filter_data(ch1_data, lowcut=19, highcut=23, fs=100.0, order=8)
+                ch2_data_high = self.filter_data(ch2_data, lowcut=19, highcut=23, fs=100.0, order=8)
+
+                epoch_data = np.stack([ch1_data_low, ch2_data_low,ch1_data_mid, ch2_data_mid,ch1_data_high, ch2_data_high], axis=0)  # Shape: (2, num_samples)
+                epoch_data = epoch_data.transpose(1, 0)  # Shape: (num_samples, 2)
 
             return (epoch_data, label)
 
