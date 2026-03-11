@@ -120,7 +120,7 @@ for i in tqdm(range(epoch.shape[0])):
     plt.title(f'Average Power Spectral Density at iteration {i} with 95% Confidence Intervals')
     plt.xlabel('frequency [Hz]')
     plt.legend()
-    plt.savefig('/app/Data/tmp/average_psd.png')
+    plt.savefig('/app/Data/store/average_psd.png')
     
 
 
@@ -145,7 +145,7 @@ for i in tqdm(range(epoch.shape[0])):
     plt.xlabel('frequency [Hz]')
     plt.ylabel('Coherence')
     plt.legend()
-    plt.savefig('/app/Data/tmp/average_coherence.png')
+    plt.savefig('/app/Data/store/average_coherence.png')
 
 # Save variables to a dictionary
 data_to_save = {
@@ -154,7 +154,7 @@ data_to_save = {
     'CXY': CXY,
 }
 
-with open('/app/Data/tmp/lists.pkl','wb') as f:
+with open('/app/Data/store/lists.pkl','wb') as f:
     dill.dump(data_to_save,f)
 
 
